@@ -3,6 +3,8 @@
   sudo: true
   vars_files:
     - vars/common.yml
+    - vars/packages.yml
   roles:
     - yumrepo
     - mariadb
+    - php

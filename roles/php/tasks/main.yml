@@ -1,0 +1,8 @@
+---
+- name: install php
+  yum: pkg={{ item }} state=installed enablerepo=remi,remi-php56
+  with_items: php_packages
+  notify:
+    - restart httpd
+
+
