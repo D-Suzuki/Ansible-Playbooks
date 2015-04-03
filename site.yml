@@ -4,4 +4,5 @@
   vars_files:
     - vars/common.yml
   roles:
+    - yumrepo
     - mariadb
