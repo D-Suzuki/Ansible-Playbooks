@@ -1,0 +1,43 @@
+# mysql_installation
+- name: Template mariadb.repo
+  template: src=../vars/mariadb.repo dest=/etc/yum.repos.d/mariadb.repo mode=0644
+
+- name: Install MariaDB
+  yum: pkg={{ item }} state=present enablerepo=mariadb
+  with_items:
+    - MariaDB-server
+    - MariaDB-client
+    - MariaDB-common
+    - MariaDB-compat
+    - MariaDB-devel
+    - MySQL-python
+
+- name: chkconfig on MariaDB
+  service: name=mysql state=started enabled=yes
+
+# mysql_secure_setting
+- name: update mysql root password for all root accounts
+  mysql_user: login_user="root" login_password="" name=root host="{{ item }}" password="{{ mysql_root_password }}"
+  with_items:
+    - "{{ ansible_fqdn }}"
+    - 127.0.0.1
+    - ::1
+    - localhost
+  remote_user: "{{ user }}"
+  ignore_errors: yes
+
+- name: copy .my.cnf file with root password credentials
+  template: src=../templates/my.cnf dest=~/.my.cnf mode=0600
+  remote_user: "{{ user }}"
+
+- name: delete anonymous MySQL server user for "{{ ansible_fqdn }}"
+  mysql_user: user="" host="{{ ansible_fqdn }}" state="absent"
+  remote_user: "{{ user }}"
+
+- name: delete anonymous MySQL server user for localhost
+  mysql_user: user="" state="absent"
+  remote_user: "{{ user }}"
+
+- name: remove the MySQL test database
+  mysql_db: db=test state=absent
+  remote_user: "{{ user }}"
