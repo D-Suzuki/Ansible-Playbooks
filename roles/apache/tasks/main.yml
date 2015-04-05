@@ -1,0 +1,15 @@
+---
+- name: apache install
+  action: yum pkg=httpd state=latest
+
+#- name: put httpd.conf
+#  action: template src=/srv/httpd.j2 dest=/etc/httpd.conf
+#  notify:
+#  - apache再起動
+
+- name: check apache start
+  action: service name=httpd state=started
+
+#handlers:
+#  - name: apache restart
+#    action: service name=httpd state=restarted

@@ -6,5 +6,8 @@
     - vars/packages.yml
   roles:
     - yumrepo
+    - git
     - mariadb
     - php
+    - phalcon
+    - apache

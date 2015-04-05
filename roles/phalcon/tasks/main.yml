@@ -1,0 +1,59 @@
+---
+- name: check phalcon version
+  shell: php -i | grep Phalcon
+  register: current_phalcon_extension
+  ignore_errors: True
+
+#- name: install required packages
+#  yum: pkg={{ item }} state=present enablerepo=remi,remi-php56
+#  with_items:
+#    - php5-dev
+#    - php5-mysql
+#    - gcc
+
+- name: checkout phalcon repository
+  git: repo=https://github.com/phalcon/cphalcon.git dest=/tmp/phalcon
+  when: "'enabled' not in '{{ current_phalcon_extension.stdout }}'"
+
+- name: build phalcon
+  action: command {{ item }} chdir=/tmp/phalcon/build
+  with_items:
+    - ./install
+  when: "'enabled' not in '{{ current_phalcon_extension.stdout }}'"
+
+- name: put phalcon.ini
+  template: src=phalcon.ini.j2 dest=/etc/php.d/phalcon.ini owner=root group=root mode=0644
+  when: "'enabled' not in '{{ current_phalcon_extension.stdout }}'"
+
+- name: check phalcon devtools
+  shell: which phalcon
+  register: current_phalcon_devtools
+  ignore_errors: True
+
+#- name: checkout phalcon devtools repository
+#  git: repo=https://github.com/phalcon/phalcon-devtools.git dest=/usr/local/src/phalcon-devtools/
+#  when: "'enabled' not in '{{ current_phalcon_devtools.stdout }}'"
+
+#- name: install phalcon devtools
+#  action: command {{ item }} chdir=/usr/local/src/phalcon-devtools/
+#  with_items:
+#    - ./phalcon.sh
+#  when: "'enabled' not in '{{ current_phalcon_devtools.stdout }}'"
+
+#- name: set environment variable phalcon devtools
+#  action: command {{item}}
+#  with_items:
+#    - echo export PTOOLSPATH=/usr/local/src/phalcon-devtools/ >> /etc/profile
+#    - echo export PATH=$PATH:/usr/local/src/phalcon-devtools >> /etc/profile
+#  when: "'enabled' not in '{{ current_phalcon_devtools.stdout }}'"
+
+#- name: update profile
+#  action: command source /etc/profile
+#  when: "'enabled' not in '{{ current_phalcon_devtools.stdout }}'"
+
+#- name: enable phalcon
+#  action: command {{ item }}
+#  with_items:
+#    - php5enmod phalcon
+#  notify: restart php
+#  ignore_errors: True
