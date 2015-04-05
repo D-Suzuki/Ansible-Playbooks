@@ -5,4 +5,7 @@
   notify:
     - restart httpd
 
-
+- name: put php.ini
+  template: src=php.ini.j2 dest=/etc/php.ini
+  notify:
+    - restart httpd
